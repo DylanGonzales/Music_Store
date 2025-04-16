@@ -1,0 +1,171 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract InstrumentRental {
+
+    address payable public owner;
+
+    bool public ViolinAvailable;
+    bool public ClarinetAvailable;
+    bool public DrumsetAvailable;
+
+    uint public ViolinRatePerDay;
+    uint public ClarinetRatePerDay;
+    uint public DrumsetRatePerDay;
+
+    uint public ViolinPrice;
+    uint public ClarinetPrice;
+    uint public DrumsetPrice;
+
+    event Log(address indexed sender, string message);
+
+    constructor() {
+        owner = payable(msg.sender);
+        ViolinAvailable = true;
+        ClarinetAvailable = true;
+        DrumsetAvailable = true;
+
+        ViolinRatePerDay = 0.5 ether;
+        ClarinetRatePerDay = 0.5 ether;
+        DrumsetRatePerDay = 0.5 ether;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this method.");
+        _;
+    }
+
+    modifier onlyWhenAvailable(bool available) {
+        require(available, "Instrument not available.");
+    _;
+    }
+
+// Instrument Rentals
+    function rentViolin(uint numDays) public payable onlyWhenAvailable(ViolinAvailable) {
+        require(ViolinAvailable, "Sorry, the instrument is unavailable.");
+        uint minOffer = ViolinRatePerDay * numDays;
+        require(msg.value >= minOffer, "You need more money for this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        ViolinAvailable = false;
+    }
+
+    function rentClarinet(uint numDays) public payable onlyWhenAvailable(ClarinetAvailable) {
+        require(ClarinetAvailable, "Sorry, the instrument is unavailable.");
+        uint minOffer = ClarinetRatePerDay * numDays;
+        require(msg.value >= minOffer, "You need more money for this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        ClarinetAvailable = false;
+    }
+
+    function rentDrumset(uint numDays) public payable onlyWhenAvailable(DrumsetAvailable) {
+        require(DrumsetAvailable, "Sorry, the instrument is unavailable.");
+        uint minOffer = DrumsetRatePerDay * numDays;
+        require(msg.value >= minOffer, "You need more money for this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        DrumsetAvailable = false;
+    }
+
+// Instrument Avaliability
+    function makeViolinAvailable() public onlyOwner {
+        ViolinAvailable = true;
+        emit Log(msg.sender, "Instrument Available");
+    }
+
+    function makeViolinUnavailable() public onlyOwner {
+        ViolinAvailable = false;
+        emit Log(msg.sender, "Instrument Unavailable");
+    }
+
+    function makeClarinetAvailable() public onlyOwner {
+        ClarinetAvailable = true;
+        emit Log(msg.sender, "Instrument Available");
+    }
+
+    function makeClarinetUnavailable() public onlyOwner {
+        ClarinetAvailable = false;
+        emit Log(msg.sender, "Instrument Unavailable");
+    }
+
+    function makeDrumsetAvailable() public onlyOwner {
+        DrumsetAvailable = true;
+        emit Log(msg.sender, "Instrument Available");
+    }
+
+    function makeDrumsetUnavailable() public onlyOwner {
+        DrumsetAvailable = false;
+        emit Log(msg.sender, "Instrument Unavailable");
+    }
+
+// Instrument Rates
+    function DailyViolinRate(uint newRate) public onlyOwner {
+        ViolinRatePerDay = newRate;
+        emit Log(msg.sender, "Instrument Rate Updated");
+    }
+
+    function DailyClarinetRate(uint newRate) public onlyOwner {
+        ClarinetRatePerDay = newRate;
+        emit Log(msg.sender, "Instrument Rate Updated");
+    }
+
+    function DailyDrumsetRate(uint newRate) public onlyOwner {
+        DrumsetRatePerDay = newRate;
+        emit Log(msg.sender, "Instrument Rate Updated");
+    }
+
+// Instrument Prices
+    function SetViolinPrice(uint newViolinPrice) public onlyOwner {
+        ViolinPrice = newViolinPrice;
+        emit Log(msg.sender, "Instrument Price Updated");
+    }
+
+    function SetClarinetPrice(uint newClarinetPrice) public onlyOwner {
+        ClarinetPrice = newClarinetPrice;
+        emit Log(msg.sender, "Instrument Price Updated");
+    }
+
+    function SetDrumsetPrice(uint newDrumsetPrice) public onlyOwner {
+        DrumsetPrice = newDrumsetPrice;
+        emit Log(msg.sender, "Instrument Price Updated");
+    }
+
+// Instrument Purchase
+    function PurchaseViolin() public payable {
+        uint minOffer_violin = ViolinPrice;
+        require(msg.value >= minOffer_violin, "You need more money to purchase this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        ViolinAvailable = false;
+        emit Log(msg.sender, "Violin purchased");
+    }
+
+    function PurchaseClarinet() public payable {
+        uint minOffer_clarinet = ClarinetPrice;
+        require(msg.value >= minOffer_clarinet, "You need more money to purchase this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");   
+        ClarinetAvailable = false;
+        emit Log(msg.sender, "Clarinet purchased");
+    }
+
+    function PurchaseDrumset() public payable {
+        uint minOffer_drumset = DrumsetPrice;
+        require(msg.value >= minOffer_drumset, "You need more money to purchase this instrument.");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        DrumsetAvailable = false;
+        emit Log(msg.sender, "Drumset purchased");
+    }
+
+// Purchase Store
+    function PurchaseStore() public payable{
+        uint minoffer = 1000;
+        require(msg.value >= minoffer, "Absolutely Not!");
+        (bool sent, ) = payable(owner).call{ value: msg.value }("");
+        require(sent, "Transfer failed.");
+        owner = payable(msg.sender);
+    }
+
+}
